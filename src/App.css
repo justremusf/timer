@@ -376,9 +376,9 @@ button {
 
 .dock {
   display: grid;
-  grid-template-columns: repeat(5, minmax(92px, 1fr));
-  width: min(46vw, 610px);
-  min-width: 520px;
+  grid-template-columns: repeat(6, minmax(88px, 1fr));
+  width: min(54vw, 720px);
+  min-width: 620px;
   height: 104px;
   padding: 9px 10px;
   background:
@@ -794,7 +794,8 @@ button {
   }
 
   .dock {
-    width: min(86vw, 610px);
+    width: min(88vw, 720px);
+    min-width: 0;
   }
 }
 

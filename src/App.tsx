@@ -1,6 +1,7 @@
 import {
   ChevronDown,
   ChevronRight,
+  Clock3,
   Hourglass,
   Maximize,
   Menu,
@@ -19,8 +20,8 @@ import {
 } from 'react'
 import './App.css'
 
-type Mode = 'day' | 'timer' | 'stopwatch'
-type Panel = Mode | 'settings' | null
+type Mode = 'clock' | 'day' | 'timer' | 'stopwatch'
+type Panel = Exclude<Mode, 'clock'> | 'settings' | null
 type HourFormat = '12h' | '24h'
 
 type TimerPreset = {
@@ -80,13 +81,19 @@ const modeItems: Array<{
   label: string
   icon: typeof Hourglass
 }> = [
+  { mode: 'clock', label: 'Clock', icon: Clock3 },
   { mode: 'timer', label: 'Timer', icon: Hourglass },
   { mode: 'day', label: 'Day', icon: MoonStar },
   { mode: 'stopwatch', label: 'Stopwatch', icon: StopwatchIcon },
 ]
 
 function isMode(value: unknown): value is Mode {
-  return value === 'day' || value === 'timer' || value === 'stopwatch'
+  return (
+    value === 'clock' ||
+    value === 'day' ||
+    value === 'timer' ||
+    value === 'stopwatch'
+  )
 }
 
 function loadSettings(): UserSettings {
@@ -366,6 +373,8 @@ function App() {
   const display = getDisplay(activeMode, {
     bedtimeLabel,
     daySecondsLeft,
+    hourFormat: settings.hourFormat,
+    now,
     stopwatchElapsed,
     timerRemaining,
   })
@@ -381,7 +390,7 @@ function App() {
 
   function chooseMode(mode: Mode) {
     setActiveMode(mode)
-    setActivePanel(mode)
+    setActivePanel(mode === 'clock' ? null : mode)
     setDockOpen(true)
   }
 
@@ -525,10 +534,43 @@ function getDisplay(
   data: {
     bedtimeLabel: string
     daySecondsLeft: number
+    hourFormat: HourFormat
+    now: Date
     stopwatchElapsed: number
     timerRemaining: number
   },
 ): Display {
+  if (activeMode === 'clock') {
+    const hour =
+      data.hourFormat === '24h'
+        ? data.now.getHours()
+        : data.now.getHours() % 12 || 12
+    const minute = data.now.getMinutes()
+    const second = data.now.getSeconds()
+    const suffix = data.now.getHours() >= 12 ? 'PM' : 'AM'
+    const label =
+      data.hourFormat === '24h'
+        ? `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`
+        : `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} ${suffix}`
+
+    return {
+      ariaLabel: `Current time ${label}`,
+      cards: [
+        {
+          value:
+            data.hourFormat === '24h'
+              ? String(hour).padStart(2, '0')
+              : String(hour),
+          unit: 'h',
+        },
+        { value: String(minute).padStart(2, '0'), unit: 'm' },
+        { value: String(second).padStart(2, '0'), unit: 's' },
+      ],
+      subtitle: '',
+      title: 'Clock',
+    }
+  }
+
   if (activeMode === 'timer') {
     const duration = formatDuration(data.timerRemaining)
     return {
