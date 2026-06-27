@@ -194,30 +194,6 @@ function getDayProgress(now: Date) {
   return Math.min(100, Math.max(0, (currentSeconds / 86400) * 100))
 }
 
-function getRailTicks(bedtime: string) {
-  const { hours, minutes } = parseTimeParts(bedtime)
-  const bedtimeSeconds = (hours * 60 + minutes) * 60
-  const baseTicks = [
-    { label: '6:00 AM', seconds: 6 * 3600 },
-    { label: '12:00 PM', seconds: 12 * 3600 },
-    { label: '6:00 PM', seconds: 18 * 3600 },
-    { label: formatTargetTime(bedtime), seconds: bedtimeSeconds },
-  ]
-
-  return baseTicks
-    .filter(
-      (tick, index, ticks) =>
-        tick.seconds > 0 &&
-        tick.seconds < 86400 &&
-        ticks.findIndex((candidate) => candidate.seconds === tick.seconds) ===
-          index,
-    )
-    .map((tick) => ({
-      ...tick,
-      position: Math.min(100, Math.max(0, (tick.seconds / 86400) * 100)),
-    }))
-}
-
 function makeCustomPreset(minutes: number): TimerPreset {
   return {
     id: `custom-${Date.now()}`,
@@ -389,7 +365,6 @@ function App() {
     (bedtimeTarget.getTime() - now.getTime()) / 1000,
   )
   const dayProgress = getDayProgress(now)
-  const railTicks = getRailTicks(settings.bedtime)
   const railTime = formatClockTime(now, settings.hourFormat)
   const currentTimeLabel = `${railTime.main}${railTime.suffix ? ` ${railTime.suffix}` : ''}`
   const timeTheme = getTimeTheme(now)
@@ -511,7 +486,6 @@ function App() {
       <LiquidRail
         currentTimeLabel={currentTimeLabel}
         progress={dayProgress}
-        ticks={railTicks}
       />
 
       <div
@@ -626,7 +600,11 @@ function getDisplay(
 function FlipCard({ unit, value }: DisplayCard) {
   return (
     <div className="flip-card">
-      <span className="flip-value">{value}</span>
+      <span
+        className={`flip-value${value.length > 1 ? ' flip-value--compact' : ''}`}
+      >
+        {value}
+      </span>
       <span className="flip-unit">{unit}</span>
     </div>
   )
@@ -635,28 +613,16 @@ function FlipCard({ unit, value }: DisplayCard) {
 function LiquidRail({
   currentTimeLabel,
   progress,
-  ticks,
 }: {
   currentTimeLabel: string
   progress: number
-  ticks: Array<{ label: string; position: number }>
 }) {
   return (
     <section className="liquid-rail" aria-label="Day progress">
-      <span className="rail-start">12:00 AM</span>
       <div className="rail-stage">
         <div className="rail-tube">
           <div className="rail-fill" style={{ width: `${progress}%` }} />
           <div className="rail-caustics" />
-          {ticks.map((tick) => (
-            <span
-              className="rail-tick"
-              key={tick.label}
-              style={{ left: `${tick.position}%` }}
-            >
-              {tick.label}
-            </span>
-          ))}
           <div
             className="rail-marker"
             style={{ left: `${progress}%` }}
@@ -666,7 +632,6 @@ function LiquidRail({
           <div className="rail-end-dot" />
         </div>
       </div>
-      <span className="rail-end">12:00 AM</span>
     </section>
   )
 }

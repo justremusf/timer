@@ -140,7 +140,10 @@ button {
 
 .flip-value {
   display: block;
+  min-width: 0;
   width: 100%;
+  padding-right: clamp(4px, 0.5vw, 10px);
+  box-sizing: border-box;
   font-size: clamp(142px, 10.8vw, 260px);
   font-weight: 760;
   line-height: 0.82;
@@ -153,6 +156,10 @@ button {
     0 1px 0 rgba(255, 255, 255, 0.34),
     0 -2px 5px rgba(0, 0, 0, 0.48),
     0 0 36px rgba(255, 255, 255, 0.08);
+}
+
+.flip-value--compact {
+  font-size: clamp(126px, 8.7vw, 208px);
 }
 
 .flip-value {
@@ -181,12 +188,7 @@ button {
   top: min(75vh, 730px);
   left: clamp(56px, 7vw, 170px);
   right: clamp(56px, 19vw, 460px);
-  display: grid;
-  grid-template-columns: 74px minmax(280px, 1fr) 92px;
-  gap: 24px;
-  align-items: center;
-  font-size: 16px;
-  color: rgba(242, 238, 230, 0.72);
+  display: block;
 }
 
 .rail-stage {
@@ -335,43 +337,6 @@ button {
   background: rgba(242, 238, 230, 0.7);
   border-radius: 999px;
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.22);
-}
-
-.rail-tick {
-  position: absolute;
-  top: 42px;
-  z-index: 3;
-  color: rgba(242, 238, 230, 0.58);
-  font-size: 14px;
-  font-weight: 520;
-  line-height: 1;
-  white-space: nowrap;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.62);
-  transform: translateX(-50%);
-}
-
-.rail-tick::before {
-  position: absolute;
-  top: -18px;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  content: '';
-  background: rgba(242, 238, 230, 0.64);
-  border-radius: 999px;
-  box-shadow:
-    0 0 10px rgba(255, 255, 255, 0.22),
-    0 12px 18px rgba(var(--accent-rgb), 0.16);
-  transform: translateX(-50%);
-}
-
-.rail-start,
-.rail-end {
-  white-space: nowrap;
-}
-
-.rail-start {
-  text-align: right;
 }
 
 .controls-layer {
@@ -871,15 +836,17 @@ button {
     font-size: 124px;
   }
 
+  .flip-value--compact {
+    font-size: 112px;
+  }
+
   .flip-unit {
     margin-bottom: 36px;
   }
 
   .liquid-rail {
-    grid-template-columns: 70px 1fr 78px;
     width: 100%;
     margin: 36px 0 34px;
-    gap: 12px;
   }
 
   .controls-layer {
